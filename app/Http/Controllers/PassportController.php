@@ -16,8 +16,8 @@ class PassportController extends Controller
     	$validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users',
-            'password' => 'required',
-            'c_password' => 'required|same:password',
+            'contact' => 'required',
+            'password' => 'required|min:6',
         ]);
 	
 		if ($validator->fails()) {
@@ -31,7 +31,11 @@ class PassportController extends Controller
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
         $success['token'] =  $user->createToken('MyApp')->accessToken;
+        $success['id'] = $user->id;
         $success['name'] =  $user->name;
+        $success['email'] = $user->email;
+        $success['contact'] = $user->contact;
+        $success['role'] = 1;
 		
 		return response()->json(['success'=>$success], $this->successStatus);
     }
