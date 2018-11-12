@@ -9,18 +9,10 @@ use Validator;
 
 class TicketBookingDetailController extends Controller
 {
-	
-	public public function showStore()
-	{
-		// $user = request()->user();
-
-		// return $user;
-		return 'a';
-	}
 
     public function store(Request $request)
     {
-
+    	return $request;
     	$user = request()->user();
 
     	$user_id = TicketBooking::where('user_id', $user['id'])
@@ -147,10 +139,84 @@ class TicketBookingDetailController extends Controller
     	}
     }
 
-    public function updateVerification(Request $request, $id)
+    public function tes(Request $request, $id)
     {
+    	// return $request;
     	$ticket = TicketBooking::find($id);
 
-    	return $ticket;
+    	if($request->file('photo') != null){
+    		// return "ada foto";
+            $photo = $ticket->id.".".$request->file('photo')->getClientOriginalExtension();
+            try{
+                TicketBooking::uploadPhoto($request->file('photo'), $photo);
+                $ticket->photo = $photo;
+        		$message['success'] = 'Berhasil mengubah data anggota';
+
+            } catch(Exception $e) {
+                $message['error'] = "Gagal upload gambar!";
+            }
+        }else{
+        	return "kosong";
+        }
+        $ticket->etc = $request->etc;
+        $ticket->save();
+    	return response()->json([
+	    	'status' => 200,
+	    	'message' => 'berhasil'
+	    ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+    	$ticket = TicketBookingDetail::find($id);
+
+    	if ($ticket->status==2) {
+
+    		return response()->json([
+    			'status' => 200,
+    			'message' => 'update data tidak diijinkan'
+    		]);
+
+    	}else{
+
+    		$validator = Validator::make($request->all(), [
+	            'booking_name' => 'required|unique:ticket_booking_details',
+	            'booking_email' => 'required|email|unique:ticket_booking_details',
+	            'booking_contact' => 'required|numeric|unique:ticket_booking_details',
+	            'booking_veget' => 'required',
+	            'booking_institution' => 'required',
+	        ]);
+
+	        if ($validator->fails()) {
+	            return response()->json([
+	            	'success' => false,
+	            	'error'=>$validator->errors()
+	            ], 401);            
+	        }
+
+	        $ticket->booking_name = $request->booking_name;
+	        $ticket->booking_email = $request->booking_email;
+	        $ticket->booking_contact = $request->booking_contact;
+	        $ticket->booking_veget = $request->booking_veget;
+	        $ticket->booking_institution = $request->booking_institution;
+	        $ticket->save();
+
+    		return response()->json([
+    			'status' => 200,
+    			'message' => 'update data berhasil'
+    		]);
+    	}
+
+    }
+
+    public function destroy($id)
+    {
+    	$ticket = TicketBookingDetail::find($id);
+    	$ticket->delete();
+
+    	return response()->json([
+    		'status' => 200,
+    		'message' => 'update data berhasil'
+    	]);
     }
 }

@@ -19,5 +19,7 @@ Route::post('login', 'PassportController@login');
 Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('booking/show', 'BookingTicketController@index');
 	Route::post('booking', 'TicketBookingDetailController@store');
-	Route::put('booking/{booking}', 'TicketBookingDetailController@updateVerification');
+	Route::post('booking/{id}', 'TicketBookingDetailController@tes');
+	Route::post('update/booking/{id}', 'TicketBookingDetailController@update');
+	Route::delete('delete/booking/{id}', 'TicketBookingDetailController@destroy');
 });
