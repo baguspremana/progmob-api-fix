@@ -16,7 +16,7 @@ class PassportController extends Controller
     	$validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users',
-            'contact' => 'required',
+            'contact' => 'required|unique:users',
             'password' => 'required|min:6',
         ]);
 	
@@ -30,7 +30,7 @@ class PassportController extends Controller
 		$input = $request->all();
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
-        $success['token'] =  $user->createToken('MyApp')->accessToken;
+        // $success['token'] =  $user->createToken('MyApp')->accessToken;
         $success['id'] = $user->id;
         $success['name'] =  $user->name;
         $success['email'] = $user->email;
@@ -54,5 +54,35 @@ class PassportController extends Controller
         else{
             return response()->json(['error'=>'Unauthorised'], 401);
         }
+    }
+
+    public function editProfile(Request $request)
+    {
+
+        $user = request()->user();
+
+        // return $user;
+
+        $profile = User::find($user['id']);
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'required|email',
+            'contact' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'error'=>$validator->errors()
+            ], 401);            
+        }
+
+        $profile->name = $request->name;
+        $profile->email = $request->email;
+        $profile->contact = $request->contact;
+        $profile->save();
+
+        return response()->json($profile, $this->successStatus);
     }
 }

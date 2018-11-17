@@ -10,6 +10,7 @@ class TicketBookingDetail extends Model
         'booking_id', 'booking_code', 'booking_name', 
         'booking_email', 'booking_contact', 'booking_veget',
         'booking_institution', 'booking_price', 'status',
+        'qrcode_photo',
     ];
 
     public function ticketBooking()

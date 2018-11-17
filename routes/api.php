@@ -22,4 +22,14 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('booking/{id}', 'TicketBookingDetailController@tes');
 	Route::post('update/booking/{id}', 'TicketBookingDetailController@update');
 	Route::delete('delete/booking/{id}', 'TicketBookingDetailController@destroy');
+	Route::put('delete/master/{id}', 'TicketBookingDetailController@destroyMaster');
+	Route::get('booking/payment', 'BookingTicketController@payment');
+	Route::post('edit/profile', 'PassportController@editProfile');
+
+	/*=========================================================================
+								ADMIN API ROUTE
+	=========================================================================*/
+	Route::get('admin/booking/payment', 'AdminController@index');
+	Route::put('admin/booking/verifikasi/{id}', 'AdminController@verifikasi');
+	Route::post('admin/add/admin', 'AdminController@addAdmin');
 });

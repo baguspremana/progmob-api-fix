@@ -12,7 +12,7 @@ class TicketBookingDetailController extends Controller
 
     public function store(Request $request)
     {
-    	return $request;
+    	// return $request;
     	$user = request()->user();
 
     	$user_id = TicketBooking::where('user_id', $user['id'])
@@ -217,6 +217,27 @@ class TicketBookingDetailController extends Controller
     	return response()->json([
     		'status' => 200,
     		'message' => 'update data berhasil'
+    	]);
+    }
+
+    public function destroyMaster($id)
+    {
+    	$details = TicketBookingDetail::where('booking_id', $id)
+    		->get();
+
+    	$ticket = TicketBooking::find($id);
+    	$ticket->status = 0;
+    	$ticket->save();
+
+    	foreach ($details as $key => $detail) {
+    		$detail_ticket = TicketBookingDetail::find($detail->id);
+    		$detail_ticket->status = 0;
+    		$detail_ticket->save();
+    	}
+
+    	return response()->json([
+    		'status' => 200,
+    		'message' => 'berhasil menghapus data'
     	]);
     }
 }
