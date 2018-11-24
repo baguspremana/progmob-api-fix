@@ -10,13 +10,15 @@ class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
+    public static $dir_photo = "/uploads/profile/";
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'gender', 
+        'name', 'email', 'photo_profile', 'gender', 
         'contact', 'role', 'password',
     ];
 
@@ -37,5 +39,10 @@ class User extends Authenticatable
     public function seminar()
     {
         return $this->hasMany('App\Seminar');
+    }
+
+    public static function uploadPhoto($file, $file_name){
+        $destinationPath = public_path(User::$dir_photo);
+        return $file->move($destinationPath, $file_name);
     }
 }

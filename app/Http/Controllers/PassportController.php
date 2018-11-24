@@ -80,6 +80,20 @@ class PassportController extends Controller
 
         $profile->name = $request->name;
         $profile->email = $request->email;
+        if($request->file('photo_profile') != null){
+            // return "ada foto";
+            $photo_profile = $profile->id.".".$request->file('photo_profile')->getClientOriginalExtension();
+            try{
+                User::uploadPhoto($request->file('photo_profile'), $photo_profile);
+                $profile->photo_profile = $photo_profile;
+                $message['success'] = 'Berhasil mengubah data anggota';
+
+            } catch(Exception $e) {
+                $message['error'] = "Gagal upload gambar!";
+            }
+        }else{
+            return "kosong";
+        }
         $profile->contact = $request->contact;
         $profile->save();
 

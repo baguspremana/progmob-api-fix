@@ -156,7 +156,10 @@ class TicketBookingDetailController extends Controller
                 $message['error'] = "Gagal upload gambar!";
             }
         }else{
-        	return "kosong";
+        	return response()->json([
+        		'success' => false,
+        		'message' => 'error'
+        	], 401);
         }
         $ticket->etc = $request->etc;
         $ticket->save();
@@ -173,13 +176,13 @@ class TicketBookingDetailController extends Controller
     	if ($ticket->status==2) {
 
     		return response()->json([
-    			'status' => 200,
-    			'message' => 'update data tidak diijinkan'
-    		]);
+	            'success' => false,
+	            'error'=> 'update tidak dijinkan'
+	        ], 401);
 
     	}else{
 
-    		$validator = Validator::make($request->all(), [
+    		/*$validator = Validator::make($request->all(), [
 	            'booking_name' => 'required|unique:ticket_booking_details',
 	            'booking_email' => 'required|email|unique:ticket_booking_details',
 	            'booking_contact' => 'required|numeric|unique:ticket_booking_details',
@@ -192,7 +195,7 @@ class TicketBookingDetailController extends Controller
 	            	'success' => false,
 	            	'error'=>$validator->errors()
 	            ], 401);            
-	        }
+	        }*/
 
 	        $ticket->booking_name = $request->booking_name;
 	        $ticket->booking_email = $request->booking_email;
@@ -212,12 +215,23 @@ class TicketBookingDetailController extends Controller
     public function destroy($id)
     {
     	$ticket = TicketBookingDetail::find($id);
-    	$ticket->delete();
 
-    	return response()->json([
-    		'status' => 200,
-    		'message' => 'update data berhasil'
-    	]);
+    	if ($ticket->status == 2) {
+
+    		return response()->json([
+	            'success' => false,
+	            'error'=> 'update tidak dijinkan'
+	        ], 401);
+
+    	}else{
+    		$ticket->delete();
+
+    		return response()->json([
+	    		'status' => 200,
+	    		'message' => 'update data berhasil'
+	    	]);
+    	}
+    	
     }
 
     public function destroyMaster($id)

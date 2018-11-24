@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Seminar extends Model
 {
     protected $fillable = [
-        'seminar_name', 'seminar_theme',
+        'seminar_name', 'seminar_theme', 'seminar_description',
         'seminar_schedule', 'seminar_location',
     ];
 

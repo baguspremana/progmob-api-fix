@@ -32,4 +32,10 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('admin/booking/payment', 'AdminController@index');
 	Route::put('admin/booking/verifikasi/{id}', 'AdminController@verifikasi');
 	Route::post('admin/add/admin', 'AdminController@addAdmin');
+	Route::post('admin/add/seminar', 'AdminController@addSeminarInfo');
+
+	Route::get('admin/show/seminar', 'AdminController@showSeminar');
+	Route::get('admin/show/admin', 'AdminController@dataAdmin');
+
+	Route::post('admin/update/seminar/{id}', 'AdminController@editSeminarInfo');
 });

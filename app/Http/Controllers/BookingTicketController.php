@@ -28,15 +28,16 @@ class BookingTicketController extends Controller
 
         $ticket = DB::table('ticket_bookings')
             ->join('ticket_booking_details','ticket_bookings.id','=','ticket_booking_details.booking_id')
-            ->select('ticket_bookings.id',
+            ->select('ticket_bookings.*',
                 DB::raw('count(ticket_booking_details.id) as jumlah_ticket'),
                 DB::raw('sum(ticket_booking_details.booking_price) as total_harga'))
             ->where('ticket_bookings.user_id', $user['id'])
             ->where('ticket_bookings.status', '!=', 0)
             ->where('ticket_booking_details.status', '!=', 0)
-            ->groupBy('ticket_bookings.id')
+            ->groupBy('ticket_bookings.id', 'ticket_bookings.user_id', 'ticket_bookings.status', 'ticket_bookings.photo', 'ticket_bookings.etc', 'ticket_bookings.created_at', 'ticket_bookings.updated_at')
             ->get();
 
-        return response()->json($ticket);
+        return $ticket;
+        // return response()->json($ticket);
     }
 }

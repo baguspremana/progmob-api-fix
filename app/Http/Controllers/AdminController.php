@@ -8,6 +8,7 @@ use App\User;
 use App\TicketBooking;
 use App\TicketBookingDetail;
 use DB;
+use App\Seminar;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AdminController extends Controller
@@ -36,7 +37,7 @@ class AdminController extends Controller
     		return response()->json([
     			'success' => false,
     			'message' => 'Anda tidak bisa melihat data ini'
-    		]);
+    		], 401);
     	}
 
     }
@@ -76,7 +77,7 @@ class AdminController extends Controller
     		return response()->json([
     			'success' => false,
     			'message' => 'Anda tidak bisa melihat data ini'
-    		]);
+    		], 401);
     	}
     	
     }
@@ -90,6 +91,7 @@ class AdminController extends Controller
     		$validator = Validator::make($request->all(), [
     			'name' => 'required',
     			'email' => 'required|email|unique:users',
+                'gender' => 'required',
     			'contact' => 'required|unique:users',
             	'password' => 'required|min:6',
     		]);
@@ -104,6 +106,7 @@ class AdminController extends Controller
 	        $admin = new User();
 	        $admin->name = $request->name;
 	        $admin->email = $request->email;
+            $admin->gender = $request->gender;
 	        $admin->contact = $request->contact;
 	        $admin->role = 2;
 	        $admin->password = bcrypt($request->password);
@@ -118,7 +121,123 @@ class AdminController extends Controller
     		return response()->json([
     			'success' => false,
     			'message' => 'Anda tidak mengakses menu ini'
-    		]);
+    		], 401);
     	}
+    }
+
+    public function addSeminarInfo(Request $request)
+    {
+        $user = request()->user();
+
+        if ($user['role'] == 2) {
+            $validator = Validator::make($request->all(), [
+                'seminar_name' => 'required',
+                'seminar_theme' => 'required',
+                'seminar_description' => 'required',
+                'seminar_schedule' => 'required',
+                'seminar_location' => 'required',
+                'ticket_available' => 'required|numeric',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'error'=>$validator->errors()
+                ], 401);            
+            }
+
+            $seminar = new Seminar();
+            $seminar->seminar_name = $request->seminar_name;
+            $seminar->seminar_theme = $request->seminar_theme;
+            $seminar->seminar_description = $request->seminar_description;
+            $seminar->seminar_schedule = $request->seminar_schedule;
+            $seminar->seminar_location = $request->seminar_location;
+            $seminar->ticket_available = $request->ticket_available;
+            $seminar->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'berhasil menambah data'
+            ]);
+
+        }else{
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak mengakses menu ini'
+            ], 401);
+        }
+    }
+
+    public function editSeminarInfo(Request $request, $id)
+    {
+        $user = request()->user();
+
+        if ($user['role']==2) {
+
+            $seminar = Seminar::find($id);
+
+            /*$validator = Validator::make($request->all(), [
+                'seminar_name' => 'required',
+                'seminar_theme' => 'required',
+                'seminar_description' => 'required',
+                'seminar_schedule' => 'required',
+                'seminar_location' => 'required',
+                'ticket_available' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'error'=>$validator->errors()
+                ], 401);            
+            }*/
+
+            $seminar->seminar_name = $request->seminar_name;
+            $seminar->seminar_theme = $request->seminar_theme;
+            $seminar->seminar_description = $request->seminar_description;
+            $seminar->seminar_schedule = $request->seminar_schedule;
+            $seminar->seminar_location = $request->seminar_location;
+            $seminar->ticket_available = $request->ticket_available;
+            $seminar->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'berhasil menambah data'
+            ]);
+
+        }else {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak mengakses menu ini'
+            ], 401);
+        }
+        
+    }
+
+    public function showSeminar()
+    {
+        $seminar = Seminar::first();
+
+        if (empty($seminar)) {
+            return response()->json([
+                'seminar_name' => null
+            ], 200);
+
+        }else{
+            return $seminar;    
+        }
+           
+    }
+
+    public function dataAdmin()
+    {
+        $user = request()->user();
+
+        $admin = User::where('role', 2)
+            ->where('id','!=',$user['id'])
+            ->get();
+
+        return $admin;
     }
 }
