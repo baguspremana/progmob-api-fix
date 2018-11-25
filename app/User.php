@@ -45,4 +45,9 @@ class User extends Authenticatable
         $destinationPath = public_path(User::$dir_photo);
         return $file->move($destinationPath, $file_name);
     }
+
+    public function faq()
+    {
+        return $this->hasMany('App\FAQ');
+    }
 }

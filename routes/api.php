@@ -17,6 +17,8 @@ Route::post('register', 'PassportController@register');
 Route::post('login', 'PassportController@login');
 
 Route::group(['middleware' => 'auth:api'], function(){
+	Route::get('profile', 'PassportController@showProfile');
+
 	Route::get('booking/show', 'BookingTicketController@index');
 	Route::post('booking', 'TicketBookingDetailController@store');
 	Route::post('booking/{id}', 'TicketBookingDetailController@tes');
@@ -33,9 +35,11 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::put('admin/booking/verifikasi/{id}', 'AdminController@verifikasi');
 	Route::post('admin/add/admin', 'AdminController@addAdmin');
 	Route::post('admin/add/seminar', 'AdminController@addSeminarInfo');
-
 	Route::get('admin/show/seminar', 'AdminController@showSeminar');
 	Route::get('admin/show/admin', 'AdminController@dataAdmin');
-
 	Route::post('admin/update/seminar/{id}', 'AdminController@editSeminarInfo');
+	Route::get('show/faq', 'AdminController@showFAQ');
+	Route::post('admin/add/faq', 'AdminController@addFAQ');
+	Route::post('admin/update/faq/{id}', 'AdminController@updateFAQ');
+	Route::delete('admin/delete/faq/{id}', 'AdminController@deleteFAQ');
 });

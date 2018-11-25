@@ -182,21 +182,6 @@ class TicketBookingDetailController extends Controller
 
     	}else{
 
-    		/*$validator = Validator::make($request->all(), [
-	            'booking_name' => 'required|unique:ticket_booking_details',
-	            'booking_email' => 'required|email|unique:ticket_booking_details',
-	            'booking_contact' => 'required|numeric|unique:ticket_booking_details',
-	            'booking_veget' => 'required',
-	            'booking_institution' => 'required',
-	        ]);
-
-	        if ($validator->fails()) {
-	            return response()->json([
-	            	'success' => false,
-	            	'error'=>$validator->errors()
-	            ], 401);            
-	        }*/
-
 	        $ticket->booking_name = $request->booking_name;
 	        $ticket->booking_email = $request->booking_email;
 	        $ticket->booking_contact = $request->booking_contact;

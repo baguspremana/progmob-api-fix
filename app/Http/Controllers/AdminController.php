@@ -9,6 +9,7 @@ use App\TicketBooking;
 use App\TicketBookingDetail;
 use DB;
 use App\Seminar;
+use App\FAQ;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AdminController extends Controller
@@ -23,13 +24,13 @@ class AdminController extends Controller
             ->join('ticket_booking_details','ticket_bookings.id','=','ticket_booking_details.booking_id')
             ->join('users', 'users.id','=','ticket_bookings.user_id')
             ->select('ticket_bookings.id', 'users.id as user_id', 'users.name',
-            	'ticket_bookings.photo',
+            	'ticket_bookings.photo', 'users.email', 'users.contact', 'ticket_bookings.status',
                 DB::raw('count(ticket_booking_details.id) as jumlah_ticket'),
                 DB::raw('sum(ticket_booking_details.booking_price) as total_harga'), 'ticket_bookings.created_at', 'ticket_bookings.updated_at')
             ->where('ticket_bookings.status', '!=', 0)
             ->where('ticket_booking_details.status', '!=', 0)
             ->groupBy('ticket_bookings.id', 'users.id',
-            		'users.name', 'ticket_bookings.photo', 'ticket_bookings.created_at','ticket_bookings.updated_at')
+            		'users.name', 'ticket_bookings.photo', 'ticket_bookings.created_at','ticket_bookings.updated_at', 'users.email', 'users.contact', 'ticket_bookings.status')
             ->get();
             return $ticket;
 
@@ -239,5 +240,82 @@ class AdminController extends Controller
             ->get();
 
         return $admin;
+    }
+
+    public function showFAQ()
+    {
+        $faq = FAQ::select('f_a_qs.*', 'users.name', 'users.email')
+            ->join('users','users.id','=','f_a_qs.user_id')
+            ->get();
+
+        return $faq;
+    }
+
+    public function addFAQ(Request $request)
+    {
+        $user = request()->user();
+
+        $validator = Validator::make($request->all(), [
+            'question' => 'required',
+            'answer' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'error'=>$validator->errors()
+            ], 401);
+        }
+
+        $faq = new FAQ();
+        $faq->user_id = $user['id'];
+        $faq->question = $request->question;
+        $faq->answer = $request->answer;
+        $faq->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'berhasil menambah data'
+        ]);
+    }
+
+    public function updateFAQ(Request $request, $id)
+    {
+        $user = request()->user();
+
+        $faq = FAQ::find($id);
+
+        $validator = Validator::make($request->all(), [
+            'question' => 'required',
+            'answer' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'error'=>$validator->errors()
+            ], 401);
+        }
+
+        $faq->user_id = $user['id'];
+        $faq->question = $request->question;
+        $faq->answer = $request->answer;
+        $faq->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'berhasil mengubah data'
+        ]);
+    }
+
+    public function deleteFAQ($id)
+    {
+        $faq = FAQ::find($id);
+        $faq->delete();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'berhasil menghapus data'
+        ]);
     }
 }

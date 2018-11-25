@@ -16,6 +16,7 @@ class PassportController extends Controller
     	$validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users',
+            'gender' => 'required',
             'contact' => 'required|unique:users',
             'password' => 'required|min:6',
         ]);
@@ -98,5 +99,12 @@ class PassportController extends Controller
         $profile->save();
 
         return response()->json($profile, $this->successStatus);
+    }
+
+    public function showProfile()
+    {
+        $user = request()->user();
+
+        return $user; 
     }
 }
