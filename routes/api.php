@@ -15,9 +15,11 @@ use Illuminate\Http\Request;
 
 Route::post('register', 'PassportController@register');
 Route::post('login', 'PassportController@login');
+Route::get('faq/user', 'PassportController@showFAQUser');
 
 Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('profile', 'PassportController@showProfile');
+	Route::post('save/fcm/{id}', 'PassportController@saveFCMToken');
 
 	Route::get('booking/show', 'BookingTicketController@index');
 	Route::post('booking', 'TicketBookingDetailController@store');
@@ -32,7 +34,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 								ADMIN API ROUTE
 	=========================================================================*/
 	Route::get('admin/booking/payment', 'AdminController@index');
-	Route::put('admin/booking/verifikasi/{id}', 'AdminController@verifikasi');
+	Route::get('admin/booking/verifikasi/{id}', 'AdminController@verifikasi');
 	Route::post('admin/add/admin', 'AdminController@addAdmin');
 	Route::post('admin/add/seminar', 'AdminController@addSeminarInfo');
 	Route::get('admin/show/seminar', 'AdminController@showSeminar');
@@ -42,4 +44,9 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('admin/add/faq', 'AdminController@addFAQ');
 	Route::post('admin/update/faq/{id}', 'AdminController@updateFAQ');
 	Route::delete('admin/delete/faq/{id}', 'AdminController@deleteFAQ');
+	Route::get('admin/scan/tiket/{token}', 'AdminController@scanTiket');
+
+	Route::get('admin/send/notif/{id}', 'AdminController@sendNotif');
+	Route::get('admin/send/cancel/notif/{id}', 'AdminController@sendCancelNotif');
+	Route::get('admin/show/peserta', 'AdminController@showPeserta');
 });

@@ -6,12 +6,16 @@ use Illuminate\Http\Request;
 use App\TicketBooking;
 use App\TicketBookingDetail;
 use Validator;
+use App\Seminar;
 
 class TicketBookingDetailController extends Controller
 {
 
     public function store(Request $request)
     {
+    	$seminar = Seminar::first();
+
+    	// return $seminar;
     	// return $request;
     	$user = request()->user();
 
@@ -60,6 +64,9 @@ class TicketBookingDetailController extends Controller
 	    		'status' => 1
 	    	]);
 
+	    	$seminar->ticket_available = $seminar->ticket_available-1;
+	    	$seminar->save();
+
 	    	return response()->json([
 	    		'status' => 200,
 	    		'message' => 'berhasil'
@@ -98,6 +105,9 @@ class TicketBookingDetailController extends Controller
 	    		'status' => 1
 	    	]);
 
+	    	$seminar->ticket_available = $seminar->ticket_available-1;
+	    	$seminar->save();
+
 	    	return response()->json([
 	    		'status' => 200,
 	    		'message' => 'berhasil'
@@ -130,6 +140,9 @@ class TicketBookingDetailController extends Controller
 	    		'booking_price' => 75000,
 	    		'status' => 1
 	    	]);
+
+	    	$seminar->ticket_available = $seminar->ticket_available-1;
+	    	$seminar->save();
 
 	    	return response()->json([
 	    		'status' => 200,
@@ -200,6 +213,9 @@ class TicketBookingDetailController extends Controller
     public function destroy($id)
     {
     	$ticket = TicketBookingDetail::find($id);
+    	$seminar = Seminar::first();
+
+    	// return $seminar;
 
     	if ($ticket->status == 2) {
 
@@ -210,6 +226,9 @@ class TicketBookingDetailController extends Controller
 
     	}else{
     		$ticket->delete();
+
+    		$seminar->ticket_available = $seminar->ticket_available+1;
+	    	$seminar->save();
 
     		return response()->json([
 	    		'status' => 200,
@@ -224,6 +243,10 @@ class TicketBookingDetailController extends Controller
     	$details = TicketBookingDetail::where('booking_id', $id)
     		->get();
 
+    	$seminar = Seminar::first();
+
+    	// return $seminar;
+
     	$ticket = TicketBooking::find($id);
     	$ticket->status = 0;
     	$ticket->save();
@@ -232,6 +255,9 @@ class TicketBookingDetailController extends Controller
     		$detail_ticket = TicketBookingDetail::find($detail->id);
     		$detail_ticket->status = 0;
     		$detail_ticket->save();
+
+    		$seminar->ticket_available = $seminar->ticket_available+1;
+	    	$seminar->save();
     	}
 
     	return response()->json([

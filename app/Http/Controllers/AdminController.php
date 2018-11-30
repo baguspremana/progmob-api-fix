@@ -11,6 +11,12 @@ use DB;
 use App\Seminar;
 use App\FAQ;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Mail;
+
+use LaravelFCM\Message\OptionsBuilder;
+use LaravelFCM\Message\PayloadDataBuilder;
+use LaravelFCM\Message\PayloadNotificationBuilder;
+use FCM;
 
 class AdminController extends Controller
 {
@@ -67,6 +73,21 @@ class AdminController extends Controller
     			$detail_ticket->qrcode_photo = $qr_code.'.png';
     			$detail_ticket->save();
     			QRCode::format('png')->size(600)->generate($qr_code,'../public/uploads/qrcode/'.$qr_code.'.png');
+
+                $path = TicketBookingDetail::$dir_qrcode;
+                $foto = $detail_ticket->qrcode_photo;
+                $file_foto = $path.'/'.$foto;
+                $data = array('title' => 'QR Code Tiket', 'path' => 'uploads/qrcode/'.$detail_ticket->qrcode_photo,
+                    'name' => $detail_ticket->booking_name,
+                    'email' => $detail_ticket->booking_email,
+                    'contact' => $detail_ticket->booking_contact,
+                    'institution' => $detail_ticket->booking_institution,
+                    'veget' => $detail_ticket->booking_veget);
+                Mail::send('attachment', $data, function($message) use($detail_ticket){
+                    $message->to($detail_ticket->booking_email, $detail_ticket->booking_name)->subject('QR Code Tiket');
+                    $message->attach(public_path('uploads/qrcode/'.$detail_ticket->qrcode_photo));
+                    $message->from('semnas.ti.udayana12@gmail.com', 'Admin-SemnasTI');
+                });
     		}
 
     		return response()->json([
@@ -176,22 +197,6 @@ class AdminController extends Controller
         if ($user['role']==2) {
 
             $seminar = Seminar::find($id);
-
-            /*$validator = Validator::make($request->all(), [
-                'seminar_name' => 'required',
-                'seminar_theme' => 'required',
-                'seminar_description' => 'required',
-                'seminar_schedule' => 'required',
-                'seminar_location' => 'required',
-                'ticket_available' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'error'=>$validator->errors()
-                ], 401);            
-            }*/
 
             $seminar->seminar_name = $request->seminar_name;
             $seminar->seminar_theme = $request->seminar_theme;
@@ -317,5 +322,90 @@ class AdminController extends Controller
             'status' => 200,
             'message' => 'berhasil menghapus data'
         ]);
+    }
+
+    public function scanTiket($token)
+    {
+        if(!$token){
+            return response()->json([
+                'success' => false,
+                'message' => 'token tidak ditemukan'
+            ], 401);
+        }
+
+        $tiket = TicketBookingDetail::where('booking_code', $token)->first();
+
+        if ($tiket->status==3) {
+            return response()->json([
+                'success' => false,
+                'message' => 'anda telah masuk'
+            ], 401);
+        }
+
+        if (!$tiket) {
+            return response()->json([
+                'success' => false,
+                'message' => 'anda bukan peserta'
+            ], 401);
+        }
+
+        $tiket->status = 3;
+
+        if ($tiket->save()) {
+            return $tiket;
+        }
+    }
+
+    public function sendNotif($id)
+    {
+
+        $user = User::find($id);
+
+        $notificationBuilder = new PayloadNotificationBuilder('Pemberitahuan');
+        $notificationBuilder->setBody('Kami telah melakukan verifikasi pembayaran tiket anda, Terimakasih')
+                            ->setSound('default');
+
+        $dataBuilder = new PayloadDataBuilder();
+        $dataBuilder->addData(['a_data' => 'my_data']);
+
+        $notification = $notificationBuilder->build();
+        $data = $dataBuilder->build();
+
+        $downstreamResponse = FCM::sendTo($user->fcm_token, null, $notification, $data);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'berhasil menghapus data'
+        ]);
+    }
+
+    public function sendCancelNotif($id)
+    {
+        $user = User::find($id);
+
+        $notificationBuilder = new PayloadNotificationBuilder('Pemberitahuan');
+        $notificationBuilder->setBody('Pastikan pembayaran yang anda lakukan telah sesuai dengan jumlah tiket yang anda pesan, Terimakasih')
+                            ->setSound('default');
+
+        $dataBuilder = new PayloadDataBuilder();
+        $dataBuilder->addData(['a_data' => 'my_data']);
+
+        $notification = $notificationBuilder->build();
+        $data = $dataBuilder->build();
+
+        $downstreamResponse = FCM::sendTo($user->fcm_token, null, $notification, $data);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'berhasil menghapus data'
+        ]);
+    }
+
+    public function showPeserta()
+    {
+        $ticket = TicketBookingDetail::where('status', 3)
+            ->get();
+
+        return $ticket;
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 use Validator;
+use App\FAQ;
 
 class PassportController extends Controller
 {
@@ -69,7 +70,9 @@ class PassportController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
+            'photo_profile' => 'required',
             'contact' => 'required',
+            'gender' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -96,6 +99,7 @@ class PassportController extends Controller
             return "kosong";
         }
         $profile->contact = $request->contact;
+        $profile->gender = $request->gender;
         $profile->save();
 
         return response()->json($profile, $this->successStatus);
@@ -106,5 +110,25 @@ class PassportController extends Controller
         $user = request()->user();
 
         return $user; 
+    }
+
+    public function showFAQUser()
+    {
+        $faq = FAQ::all();
+
+        return $faq;
+    }
+
+    public function saveFCMToken(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        $user->fcm_token = $request->fcm_token;
+        $user->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'berhasil'
+        ]);
     }
 }
