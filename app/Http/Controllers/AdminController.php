@@ -10,6 +10,7 @@ use App\TicketBookingDetail;
 use DB;
 use App\Seminar;
 use App\FAQ;
+use App\LogVerifikasi;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Mail;
 
@@ -88,6 +89,12 @@ class AdminController extends Controller
                     $message->attach(public_path('uploads/qrcode/'.$detail_ticket->qrcode_photo));
                     $message->from('semnas.ti.udayana12@gmail.com', 'Admin-SemnasTI');
                 });
+
+                $log = new LogVerifikasi();
+                $log->booking_detail_id = $detail_ticket->id;
+                $log->user_id = $user['id'];
+                $log->status = 1;
+                $log->save();
     		}
 
     		return response()->json([
@@ -407,5 +414,45 @@ class AdminController extends Controller
             ->get();
 
         return $ticket;
+    }
+
+    public function dahsboard()
+    {
+        $jumlah_ticket = Seminar::min('ticket_available');
+
+        $belum_verif = TicketBookingDetail::where('status', 1)
+            ->count('id');
+
+        $verif = TicketBookingDetail::where('status', 2)
+            ->count('id');
+
+        $veget = TicketBookingDetail::where('booking_veget', 1)
+            ->count('id');
+
+        $hadir = TicketBookingDetail::where('status', 3)
+            ->count('id');
+
+        $total_penjualan = TicketBookingDetail::where('status', 2)
+            ->sum('booking_price');
+
+        return response()->json([
+            'jumlah_ticket' => $jumlah_ticket,
+            'belum_verif' => $belum_verif,
+            'verif' => $verif,
+            'veget' => $veget,
+            'hadir' => $hadir,
+            'total_penjualan' => $total_penjualan
+        ]);
+    }
+
+    public function logVerifikasi()
+    {
+        $log = LogVerifikasi::select('log_verifikasis.*', 'ticket_booking_details.booking_email', 'users.name')
+            ->join('ticket_booking_details', 'ticket_booking_details.id','=','log_verifikasis.booking_detail_id')
+            ->join('ticket_bookings', 'ticket_bookings.id','=','ticket_booking_details.booking_id')
+            ->join('users', 'users.id','=','ticket_bookings.user_id')
+            ->get();
+
+        return $log;
     }
 }

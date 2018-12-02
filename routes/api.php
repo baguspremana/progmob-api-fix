@@ -49,4 +49,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('admin/send/notif/{id}', 'AdminController@sendNotif');
 	Route::get('admin/send/cancel/notif/{id}', 'AdminController@sendCancelNotif');
 	Route::get('admin/show/peserta', 'AdminController@showPeserta');
+
+	Route::get('admin/dashboard', 'AdminController@dahsboard');
+	Route::get('admin/log/verifikasi', 'AdminController@logVerifikasi');
 });

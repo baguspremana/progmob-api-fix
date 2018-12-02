@@ -15,9 +15,9 @@ class TicketBookingDetailController extends Controller
     {
     	$seminar = Seminar::first();
 
-    	// return $seminar;
-    	// return $request;
     	$user = request()->user();
+
+        // return $user;
 
     	$user_id = TicketBooking::where('user_id', $user['id'])
     		->max('user_id');
@@ -29,9 +29,21 @@ class TicketBookingDetailController extends Controller
     				->max('created_at')));
 
     	$booking_id = TicketBooking::where('user_id', $user['id'])
-    		->max('id');
+    		->get()
+            ->last()
+            ->id;
+
+        // return $booking_id;
+
+        $status_max = TicketBooking::where('user_id', $user['id'])
+            ->get()
+            ->last()
+            ->status;
+
+    	// return $status_max;
 
     	if ($created_at==null and $user_id==null) {
+            // return 'a';
 
     		$validator = Validator::make($request->all(), [
 	            'booking_name' => 'required|unique:ticket_booking_details',
@@ -72,7 +84,8 @@ class TicketBookingDetailController extends Controller
 	    		'message' => 'berhasil'
 	    	]);
 
-    	}elseif ($currentDateTime > $created_at) {
+    	}elseif ($status_max==2) {
+    		// return 'b';
 
     		$validator = Validator::make($request->all(), [
 	            'booking_name' => 'required|unique:ticket_booking_details',
@@ -112,8 +125,9 @@ class TicketBookingDetailController extends Controller
 	    		'status' => 200,
 	    		'message' => 'berhasil'
 	    	]);
-    		
+
     	}else{
+            // return 'c';
 
     		$validator = Validator::make($request->all(), [
 	            'booking_name' => 'required|unique:ticket_booking_details',
