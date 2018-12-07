@@ -22,27 +22,40 @@ class TicketBookingDetailController extends Controller
     	$user_id = TicketBooking::where('user_id', $user['id'])
     		->max('user_id');
 
+        // return $user_id;
+
     	$currentDateTime = date('Y-m-d');
 
     	$created_at = date('Y-m-d', 
     				strtotime(TicketBooking::where('user_id', $user['id'])
     				->max('created_at')));
 
-    	$booking_id = TicketBooking::where('user_id', $user['id'])
-    		->get()
-            ->last()
-            ->id;
+        // return $created_at;
+
+        $booking_id = TicketBooking::where('user_id', $user['id'])
+            ->max('id');
 
         // return $booking_id;
 
-        $status_max = TicketBooking::where('user_id', $user['id'])
-            ->get()
-            ->last()
+        if ($booking_id != null) {
+
+            $status_max = TicketBooking::where('user_id', $user['id'])
+            ->select('status')
+            ->orderBy('status', 'desc')
+            ->first()
             ->status;
+            
+        }else{
 
-    	// return $status_max;
+            $status_max = 1;
+        }
 
-    	if ($created_at==null and $user_id==null) {
+        // return $status_max;
+        // $status_int = (int)$status_max;
+
+    	// return $status_int;
+
+    	if ($user_id==null) {
             // return 'a';
 
     		$validator = Validator::make($request->all(), [
