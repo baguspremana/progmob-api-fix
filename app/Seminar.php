@@ -8,7 +8,7 @@ class Seminar extends Model
 {
     protected $fillable = [
         'seminar_name', 'seminar_theme', 'seminar_description',
-        'seminar_schedule', 'seminar_location',
+        'seminar_schedule', 'seminar_location', 'ticket_available'
     ];
 
     public function user()
